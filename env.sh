@@ -1,6 +1,4 @@
 #!/bin/bash
-
-set -e
 if [ "${S3_ACCESS_KEY_ID}" = "**None**" ]; then
   echo "You need to set the S3_ACCESS_KEY_ID environment variable."
   exit 1
@@ -42,25 +40,15 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" ]; then
 fi
 
 if [ "${S3_ENDPOINT}" == "**None**" ]; then
-  AWS_ARGS=""
+  S3_ARGS=""
 else
-  AWS_ARGS="--endpoint-url ${S3_ENDPOINT}"
+  S3_ARGS="--endpoint-url ${S3_ENDPOINT}"
 fi
 
 # env vars needed for aws tools
 export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=$S3_REGION
-
+export AWS_ARGS=$S3_ARGS
 export PGPASSWORD=$POSTGRES_PASSWORD
-POSTGRES_HOST_OPTS="-h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_EXTRA_OPTS"
-
-if [ "${S3_S3V4}" = "yes" ]; then
-    aws configure set default.s3.signature_version s3v4
-fi
-
-if [ "${SCHEDULE}" = "**None**" ]; then
-  sh backup.sh
-else
-  exec go-cron "$SCHEDULE" /bin/sh backup.sh
-fi
+export POSTGRES_HOST_OPTS="-h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER $POSTGRES_EXTRA_OPTS"
