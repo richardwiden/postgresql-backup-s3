@@ -46,7 +46,7 @@ if [ "${POSTGRES_DATABASE}" == "all" ]; then
   exit 2
 else
   echo "Restoring with pg_restore $POSTGRES_HOST_OPTS -1 -f $SRC_FILE"
-  pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE -1 -e --no-owner --no-privileges $SRC_FILE > result.txt
+  pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE -1 -e --no-owner --no-privileges $SRC_FILE > result.txt 2>&1
   cat result.txt
 fi
 
