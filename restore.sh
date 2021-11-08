@@ -16,7 +16,6 @@ elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring latest"
   res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/)
   res=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4)
-  echo $res
   SRC_FILE=$res
   echo "Restoring: $SRC_FILE"
 else
@@ -33,12 +32,7 @@ if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
   echo "File not encrypted"
 else
   DEST_FILE="restore.sql.gz"
-
-  >&2 echo "Decrypting ${SRC_FILE}"
   openssl aes-256-cbc -iter 1000 -d -in $SRC_FILE -out $DEST_FILE -k $ENCRYPTION_PASSWORD
-  if [ $? != 0 ]; then
-    >&2 echo "Error Decrypting ${SRC_FILE}"
-  fi
   rm $SRC_FILE
   SRC_FILE=$DEST_FILE
 fi
