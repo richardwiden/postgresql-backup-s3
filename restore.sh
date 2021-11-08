@@ -13,12 +13,14 @@ echo "Restoring dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 if [ "${RESTORE}" = "**None**" ]; then
   exit
 elif [ "${RESTORE}" = "latest" ]; then
+  echo "Restoring latest"
   # shellcheck disable=SC2086
   res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/)
   res=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4)
   echo $res
   SRC_FILE=$res
 else
+  echo "Restoring ${RESTORE}"
   SRC_FILE=${RESTORE}
 fi
 

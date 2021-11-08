@@ -17,4 +17,4 @@ docker run --rm --network local --name postgresql-backup-s3  \
   -e RESTORE="latest" \
   postgresql-backup-s3
 
-docker run -it --network local --rm jbergknoff/postgresql-client postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"
+docker run --network local --rm jbergknoff/postgresql-client postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"
