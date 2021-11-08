@@ -30,10 +30,10 @@ aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
   echo "File not encrypted"
 else
-  DEST_FILE="${$SRC_FILE%.*}"
+  DEST_FILE="restore.sql.gz"
 
   >&2 echo "Decrypting ${SRC_FILE}"
-  openssl -aes-256-cbc -d -a -in $SRC_FILE -out $DEST_FILE -k $ENCRYPTION_PASSWORD
+  openssl aes-256-cbc -iter 1000 -d -in $SRC_FILE -out $DEST_FILE -k $ENCRYPTION_PASSWORD
   if [ $? != 0 ]; then
     >&2 echo "Error Decrypting ${SRC_FILE}"
   fi
