@@ -40,6 +40,20 @@ jobs:
       - name: Tear down
         run: ./test/tear_down.sh
 
+      - name: Set up Scheduled
+        run: ./test/setup.sh
+
+      - name: Test backup
+        run: ./test/test_backup_schedule.sh
+        env:
+          SCHEDULE: "@every 1 min"
+
+      - name: Test restore
+        run: ./test/test_restore.sh
+
+      - name: Tear down
+        run: ./test/tear_down.sh
+
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
