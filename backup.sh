@@ -9,8 +9,8 @@ set -o pipefail
 
 echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 
-SRC_FILE=dump.sql.gz
-DEST_FILE=${POSTGRES_DATABASE}_$(date +"%Y%m%dT%H%M%SZ").sql.gz
+SRC_FILE=${POSTGRES_DATABASE}_$(date +"%Y%m%dT%H%M%SZ").sql.gz
+DEST_FILE=$SRC_FILE
 
 if [ "${POSTGRES_DATABASE}" == "all" ]; then
   pg_dumpall $POSTGRES_HOST_OPTS | gzip > $SRC_FILE
