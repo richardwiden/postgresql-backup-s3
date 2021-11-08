@@ -6,6 +6,9 @@ docker run --rm --network local --name s3 -d -p 9000:9000 \
   -e USER="$S3_ACCESS_KEY_ID" \
   -e PASSWORD="$S3_SECRET_ACCESS_KEY" \
   altmannmarcelo/minio:latest
+
+sleep 1
+
 docker run --rm --network local --name aws \
   -e AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY_ID" \
   -e AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY" \
@@ -13,13 +16,19 @@ docker run --rm --network local --name aws \
   amazon/aws-cli \
     --endpoint-url $S3_ENDPOINT \
     s3 mb s3://$S3_BUCKET
+docker volume create pgdata
 docker run --rm --network local --name $POSTGRES_HOST -d -p "5432:5432" \
   -e POSTGRES_DB=$POSTGRES_DATABASE \
+  -e POSTGRES_DATABASE \
   -e POSTGRES_USER \
   -e POSTGRES_PASSWORD \
   -e POSTGRES_PORT \
-  -v /tests/test_db_setup.sh/init-user-db.sh \
-  postgres:14
+  -v pgdata:/var/lib/postgresql/data \
+  -v "$PWD/test/test_db_setup.sh:/docker-entrypoint-initdb.d/test_db_setup.sh" \
+  postgres:14-alpine
 
-sleep 5
-echo "Server should be up and running now"
+sleep 1
+
+docker build . -t postgresql-backup-s3
+
+

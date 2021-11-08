@@ -4,6 +4,7 @@ LABEL maintainer="richard.widen@mimer.com"
 
 RUN apk update && \
 	apk add coreutils && \
+    apk add tzdata && \
 	apk add python3 py3-pip && pip3 install --upgrade pip && pip3 install awscli && \
 	apk add openssl && \
 	apk add curl && \

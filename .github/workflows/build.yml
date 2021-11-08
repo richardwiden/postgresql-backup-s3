@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Chmod test-files for windows
-        run: chmod +x ./test/setup.sh && chmod +x ./test/tear_down.sh && chmod +x ./test/test_backup.sh
+        run: chmod -R +x ./test
 
       - name: Set up
         run: ./test/setup.sh
