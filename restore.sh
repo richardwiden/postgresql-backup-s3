@@ -14,11 +14,11 @@ if [ "${RESTORE}" = "**None**" ]; then
   exit
 elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring latest"
-  # shellcheck disable=SC2086
   res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/)
   res=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4)
   echo $res
   SRC_FILE=$res
+  echo "Restoring: $SRC_FILE"
 else
   echo "Restoring ${RESTORE}"
   SRC_FILE=${RESTORE}
@@ -26,7 +26,7 @@ fi
 
 DEST_FILE=$SRC_FILE
 
-echo "aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2"
+
 # shellcheck disable=SC2086
 aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
