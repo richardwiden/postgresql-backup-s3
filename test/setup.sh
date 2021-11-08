@@ -27,7 +27,9 @@ docker run --rm --network local --name $POSTGRES_HOST -d -p "5432:5432" \
   -v pgdata:/var/lib/postgresql/data \
   -v "$(pwd)/test/test_db_setup.sh:/docker-entrypoint-initdb.d/test_db_setup.sh" \
   postgres:14-alpine
+docker inspect $POSTGRES_HOST
 docker attach $POSTGRES_HOST
+exit 2
 sleep 1
 
 docker build . -t postgresql-backup-s3
