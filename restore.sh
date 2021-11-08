@@ -14,17 +14,21 @@ if [ "${RESTORE}" = "**None**" ]; then
   exit
 elif [ "${RESTORE}" = "latest" ]; then
   # shellcheck disable=SC2086
-  SRC_FILE="$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ | grep " PRE " -v | sort | head -1 | cut -d " " -f 4 | sed -e 's/\r//g'| sed -e 's/\n//g')"
+  res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/)
+  res=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4)
+  echo $res
+  SRC_FILE=$res
 else
   SRC_FILE=${RESTORE}
 fi
 
-SRC_FILE=$DEST_FILE
+DEST_FILE=$SRC_FILE
+
+echo "aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2"
 # shellcheck disable=SC2086
 aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2
-
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
-  DEST_FILE=$SRC_FILE
+  echo "File not encrypted"
 else
   DEST_FILE="${$SRC_FILE%.*}"
 
@@ -37,16 +41,12 @@ else
   SRC_FILE=$DEST_FILE
 fi
 
-
-SRC_FILE=dump.sql.gz
-DEST_FILE=${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz
-
 if [ "${POSTGRES_DATABASE}" == "all" ]; then
   echo "Can't restore all"
   exit 2
 else
-  echo "Restoring with pg_restore"
-  pg_restore $POSTGRES_HOST_OPTS -1 -f $SRC_FILE
+  echo "Restoring with pg_restore $POSTGRES_HOST_OPTS -1 -f $SRC_FILE"
+  pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE --no-owner --no-privileges "$SRC_FILE"
 fi
 
 

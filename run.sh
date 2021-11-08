@@ -11,4 +11,6 @@ if [ "${RESTORE}" = "**None**" ]; then
   else
     exec go-cron "$SCHEDULE" /bin/sh backup.sh
   fi
+else
+  sh restore.sh
 fi

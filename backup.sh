@@ -10,13 +10,13 @@ set -o pipefail
 echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 
 SRC_FILE=dump.sql.gz
-DEST_FILE=${POSTGRES_DATABASE}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz
+DEST_FILE=${POSTGRES_DATABASE}_$(date +"%Y%m%dT%H%M%SZ").sql.gz
 
 if [ "${POSTGRES_DATABASE}" == "all" ]; then
   pg_dumpall $POSTGRES_HOST_OPTS | gzip > $SRC_FILE
 else
-  echo "pg_dump $POSTGRES_HOST_OPTS $POSTGRES_DATABASE | gzip > $SRC_FILE"
-  pg_dump $POSTGRES_HOST_OPTS $POSTGRES_DATABASE | gzip > $SRC_FILE
+  echo "pg_dump $POSTGRES_HOST_OPTS -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > $SRC_FILE"
+  pg_dump $POSTGRES_HOST_OPTS -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > $SRC_FILE
 fi
 
 
@@ -31,7 +31,7 @@ if [ "${ENCRYPTION_PASSWORD}" != "**None**" ]; then
   DEST_FILE="${DEST_FILE}.enc"
 fi
 
-echo "Uploading dump to $AWS_ARGS $S3_BUCKET"
+echo "Uploading dump to $AWS_ARGS s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 
 cat $SRC_FILE | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE || exit 2
 
