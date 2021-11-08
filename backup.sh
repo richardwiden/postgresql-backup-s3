@@ -29,6 +29,8 @@ if [ "${ENCRYPTION_PASSWORD}" != "**None**" ]; then
   rm $SRC_FILE
   SRC_FILE="${SRC_FILE}.enc"
   DEST_FILE="${DEST_FILE}.enc"
+else
+  echo $ENCRYPTION_PASSWORD
 fi
 
 echo "Uploading dump to $AWS_ARGS s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"

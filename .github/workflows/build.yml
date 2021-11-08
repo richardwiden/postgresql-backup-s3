@@ -21,6 +21,7 @@ jobs:
       POSTGRES_DATABASE: test_db
       POSTGRES_PORT: '5432'
       POSTGRES_HOST: postgres
+      ENCRYPTION_PASSWORD: encryption_password
     steps:
       - uses: actions/checkout@v2
 
