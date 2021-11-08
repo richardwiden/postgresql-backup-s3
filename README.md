@@ -82,6 +82,7 @@ spec:
 | SCHEDULE             |           |          | Backup schedule time, see explainatons below                                                                             |
 | ENCRYPTION_PASSWORD  |           |          | Password to encrypt the backup. Can be decrypted using `openssl aes-256-cbc -d -in backup.sql.gz.enc -out backup.sql.gz` |
 | DELETE_OLDER_THAN    |           |          | Delete old backups, see explanation and warning below                                                                    |
+| RESTORE              | **None**  | N        | Set to LATEST to restore latest version or set to anything else to restore that                                          |
 
 ### Automatic Periodic Backups
 

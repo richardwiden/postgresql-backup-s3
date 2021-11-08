@@ -16,15 +16,25 @@ jobs:
       S3_SECRET_ACCESS_KEY: myawssecret
       S3_ENDPOINT: http://s3:9000
       S3_BUCKET: my-bucket
+      POSTGRES_USER: pg
+      POSTGRES_PASSWORD: pw
+      POSTGRES_DATABASE: test_db
+      POSTGRES_PORT: '5432'
+      POSTGRES_HOST: postgres
     steps:
       - uses: actions/checkout@v2
-      - name: a
+
+      - name: Chmod test-files for windows
         run: chmod +x ./test/setup.sh && chmod +x ./test/tear_down.sh && chmod +x ./test/test_backup.sh
+
       - name: Set up
         run: ./test/setup.sh
 
       - name: Test backup
         run: ./test/test_backup.sh
+
+      - name: Test restore
+        run: ./test/test_restore.sh
 
       - name: Tear down
         run: ./test/tear_down.sh

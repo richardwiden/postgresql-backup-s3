@@ -5,20 +5,22 @@ set -o pipefail
 
 >&2 echo "-----"
 
-sourc env.sh
+. env.sh
 
 echo
 echo "Restoring dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 
-if [ "${RESTORE}" == "**None**" ]; then
+if [ "${RESTORE}" = "**None**" ]; then
   exit
-elif [ "${RESTORE}" == "latest" ]; then
+elif [ "${RESTORE}" = "latest" ]; then
+  # shellcheck disable=SC2086
   SRC_FILE="$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ | grep " PRE " -v | sort | head -1 | cut -d " " -f 4 | sed -e 's/\r//g'| sed -e 's/\n//g')"
 else
   SRC_FILE=${RESTORE}
 fi
 
 SRC_FILE=$DEST_FILE
+# shellcheck disable=SC2086
 aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2
 
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then

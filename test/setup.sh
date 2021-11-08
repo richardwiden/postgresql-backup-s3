@@ -1,9 +1,6 @@
 #!/bin/bash
 ./test/tear_down.sh
 
-POSTGRES_PORT=5432
-export POSTGRES_PORT
-
 docker network create local
 docker run --rm --network local --name s3 -d -p 9000:9000 \
   -e USER="$S3_ACCESS_KEY_ID" \
@@ -16,9 +13,13 @@ docker run --rm --network local --name aws \
   amazon/aws-cli \
     --endpoint-url $S3_ENDPOINT \
     s3 mb s3://$S3_BUCKET
-docker run --rm --network local --name postgres -d -p $POSTGRES_PORT:$POSTGRES_PORT \
-  -e POSTGRES_DATABASE \
+docker run --rm --network local --name $POSTGRES_HOST -d -p "5432:5432" \
+  -e POSTGRES_DB=$POSTGRES_DATABASE \
   -e POSTGRES_USER \
   -e POSTGRES_PASSWORD \
   -e POSTGRES_PORT \
+  -v /tests/test_db_setup.sh/init-user-db.sh \
   postgres:14
+
+sleep 5
+echo "Server should be up and running now"

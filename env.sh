@@ -44,7 +44,7 @@ if [ "${S3_ENDPOINT}" == "**None**" ]; then
 else
   S3_ARGS="--endpoint-url ${S3_ENDPOINT}"
 fi
-
+echo "port: $POSTGRES_PORT"
 # env vars needed for aws tools
 export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
