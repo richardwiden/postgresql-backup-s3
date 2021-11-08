@@ -24,7 +24,7 @@ docker run --rm --network local --name $POSTGRES_HOST -d -p "5432:5432" \
   -e POSTGRES_PASSWORD \
   -e POSTGRES_PORT \
   -v pgdata:/var/lib/postgresql/data \
-  -v "$PWD/test/test_db_setup.sh:/docker-entrypoint-initdb.d/test_db_setup.sh" \
+  -v "$(pwd)/test/test_db_setup.sh:/docker-entrypoint-initdb.d/test_db_setup.sh" \
   postgres:14-alpine
 docker attach $POSTGRES_HOST
 sleep 1
