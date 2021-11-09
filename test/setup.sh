@@ -2,7 +2,7 @@
 ./test/tear_down.sh
 
 docker network create local
-docker run --rm --network local --name s3 -d -p 9000:9000 \
+docker run --rm --network local --name s3 -d -p 9000 \
   -e USER="$S3_ACCESS_KEY_ID" \
   -e PASSWORD="$S3_SECRET_ACCESS_KEY" \
   altmannmarcelo/minio:latest
@@ -17,7 +17,7 @@ docker run --rm --network local --name aws \
     --endpoint-url $S3_ENDPOINT \
     s3 mb s3://$S3_BUCKET
 docker volume create pgdata
-docker run --rm --network local --name $POSTGRES_HOST -d -p "5432:5432" \
+docker run --rm --network local --name $POSTGRES_HOST -d -p $POSTGRES_PORT \
   -e POSTGRES_DB=$POSTGRES_DATABASE \
   -e POSTGRES_DATABASE \
   -e POSTGRES_USER \

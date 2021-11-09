@@ -1,20 +1,24 @@
 #!/bin/bash
 
 set -e
+
 if [ "${S3_S3V4}" = "yes" ]; then
     aws configure set default.s3.signature_version s3v4
 fi
 LOGFILE=/var/log/backup.log
+mkdir -p /var/log
+touch $LOGFILE
+echo "Run" > $LOGFILE
+
+cat $LOGFILE
 if [ "${RESTORE}" = "**None**" ]; then
   if [ "${SCHEDULE}" = "**None**" ]; then
-    touch /var/log/backup.log
-    sh backup.sh >> $LOGFILE
+    sh backup.sh >> $LOGFILE 2>&1
     cat $LOGFILE
   else
-    touch /var/log/backup.log
-    exec go-cron "$SCHEDULE" /bin/sh backup.sh >> $LOGFILE
+      exec go-cron "$SCHEDULE" /bin/sh backup.sh >> $LOGFILE 2>&1
   fi
 else
-  sh restore.sh >> $LOGFILE
-  cat $LOGFILE
+  echo "Restoring"
+  sh restore.sh
 fi

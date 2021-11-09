@@ -36,6 +36,8 @@ jobs:
 
       - name: Test restore
         run: ./test/test_restore.sh
+        env:
+          RESTORE: "latest"
 
       - name: Tear down
         run: ./test/tear_down.sh
@@ -46,10 +48,13 @@ jobs:
       - name: Test backup
         run: ./test/test_backup_schedule.sh
         env:
-          SCHEDULE: "@every 1 min"
+          SCHEDULE: "@every 5s"
+          DELETE_OLDER_THAN: "15 seconds ago"
 
       - name: Test restore
         run: ./test/test_restore.sh
+        env:
+          RESTORE: "latest"
 
       - name: Tear down
         run: ./test/tear_down.sh
