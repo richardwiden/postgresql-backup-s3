@@ -1,6 +1,7 @@
 # postgres-backup-s3
 
 Backup PostgresSQL to S3 (supports periodic backups)
+[![CI-dev-pipeline](https://github.com/richardwiden/postgresql-backup-s3/actions/workflows/build.yml/badge.svg)](https://github.com/richardwiden/postgresql-backup-s3/actions/workflows/build.yml)
 
 ## Basic Usage
 
