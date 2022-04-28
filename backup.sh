@@ -23,7 +23,7 @@ if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
 else
   echo "Encrypting ${SRC_FILE}"
   openssl enc -aes-256-cbc -iter 1000 -in $SRC_FILE -out ${SRC_FILE}.enc -k $ENCRYPTION_PASSWORD
-  rm $SRC_FILE
+  rm "$SRC_FILE" #Delete unencrypted file in local file system
   SRC_FILE="${SRC_FILE}.enc"
   DEST_FILE="${DEST_FILE}.enc"
 fi
@@ -31,6 +31,7 @@ fi
 echo "Uploading dump to $AWS_ARGS s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 
 cat $SRC_FILE | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE || exit 2
+rm "$SRC_FILE" #Delete file in local file system
 
 if [ "${DELETE_OLDER_THAN}" = "**None**" ]; then
   echo "Not deleting old backups"
