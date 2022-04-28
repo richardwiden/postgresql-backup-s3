@@ -42,7 +42,7 @@ if [ "${POSTGRES_DATABASE}" == "all" ]; then
 else
   if [ -f "$SRC_FILE" ]; then
     echo "Restoring with pg_restore $POSTGRES_HOST_OPTS -1 -f $SRC_FILE"
-    pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2 >&1
+    pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1
   else
     echo "No file to restore from"; exit 2;
   fi
