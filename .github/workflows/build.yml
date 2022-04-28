@@ -45,13 +45,13 @@ jobs:
       - name: Set up Scheduled
         run: ./test/setup.sh
 
-      - name: Test backup
+      - name: Test schedule backup
         run: ./test/test_backup_schedule.sh
         env:
           SCHEDULE: "@every 5s"
           DELETE_OLDER_THAN: "15 seconds ago"
 
-      - name: Test restore
+      - name: Test restore of scheduled backup
         run: ./test/test_restore.sh
         env:
           RESTORE: "latest"

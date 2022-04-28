@@ -17,9 +17,9 @@ elif [ "${RESTORE}" = "latest" ]; then
   echo "$res"
   SRC_FILE=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4 2>&1)
 
-  echo "Restoring: $SRC_FILE"
+  echo "Restoring latest: $SRC_FILE"
 else
-  echo "Restoring ${RESTORE}"
+  echo "Restoring file: $RESTORE"
   SRC_FILE=${RESTORE}
 fi
 
@@ -41,7 +41,7 @@ if [ "${POSTGRES_DATABASE}" == "all" ]; then
   exit 2
 else
   if [ -f "$SRC_FILE" ]; then
-    echo "Restoring with pg_restore $POSTGRES_HOST_OPTS -1 -f $SRC_FILE"
+    echo "Restoring pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1"
     pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1
   else
     echo "No file to restore from"; exit 2;
