@@ -12,10 +12,10 @@ if [ "${RESTORE}" = "**None**" ]; then
 elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring latest"
   res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>&1)
-  echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4
-  echo "$res" | grep -v " PRE " | sort | head -1 | cut -d " " -f 4
+  echo $res | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
+  echo "$res" | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
   echo "$res"
-  SRC_FILE=$(echo $res | grep -v " PRE " | sort | head -1 | cut -d " " -f 4 2>&1)
+  SRC_FILE=$(echo $res | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4 2>&1)
 
   echo "Restoring latest: $SRC_FILE"
 else
