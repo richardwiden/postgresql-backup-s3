@@ -1,4 +1,5 @@
 #!/bin/bash
+sleep 2
 docker run -i --rm --network local  jbergknoff/postgresql-client \
    -vON_ERROR_STOP=ON postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE <<-EOSQL
     drop table mytable;

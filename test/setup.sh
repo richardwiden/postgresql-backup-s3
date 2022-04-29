@@ -27,7 +27,7 @@ docker run --rm --network local --name $POSTGRES_HOST -d -p $POSTGRES_PORT \
   postgres:14-alpine
 docker cp ./test/test_db_setup.sh postgres:/docker-entrypoint-initdb.d/test_db_setup.sh
 
-sleep 1
+sleep 2
 
 docker build . -t postgresql-backup-s3
 
