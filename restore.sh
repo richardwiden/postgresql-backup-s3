@@ -11,6 +11,8 @@ if [ "${RESTORE}" = "**None**" ]; then
   exit 2
 elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring latest"
+  echo "AWS"
+  echo $AWS_ARGS
   res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>&1)
   echo $res | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
   echo "$res" | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
