@@ -1,6 +1,6 @@
-#!/bin/sh
-#set -e
-#set -o pipefail
+#!/bin/bash
+set -e
+set -o pipefail
 . env.sh
 
 echo "-----"
