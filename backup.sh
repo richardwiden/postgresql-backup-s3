@@ -22,32 +22,37 @@ if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
   echo "Not encrypted"
 else
   echo "Encrypting ${SRC_FILE}"
-  openssl enc -aes-256-cbc -iter 1000 -in $SRC_FILE -out ${SRC_FILE}.enc -k $ENCRYPTION_PASSWORD
+  DEST_FILE="$SRC_FILE.enc"
+  openssl enc -aes-256-cbc -iter 1000 -in "$SRC_FILE" -out "${DEST_FILE}" -k "$ENCRYPTION_PASSWORD"
   rm "$SRC_FILE" #Delete unencrypted file in local file system
-  SRC_FILE="${SRC_FILE}.enc"
-  DEST_FILE="${DEST_FILE}.enc"
+  SRC_FILE=$DEST_FILE
+
 fi
 
 echo "Uploading dump to $AWS_ARGS s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 
-cat $SRC_FILE | aws $AWS_ARGS s3 cp - s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE || exit 2
+ # shellcheck disable=SC2086
+aws $AWS_ARGS s3 cp $SRC_FILE "s3://$S3_BUCKET/$S3_PREFIX/" || exit 2
 rm "$SRC_FILE" #Delete file in local file system
 
 if [ "${DELETE_OLDER_THAN}" = "**None**" ]; then
   echo "Not deleting old backups"
 else
   echo "Checking for files older than ${DELETE_OLDER_THAN}"
-  aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ | grep " PRE " -v | while read -r line;
+  older_than=$(date -d "$DELETE_OLDER_THAN" +%s)
+  # shellcheck disable=SC2086
+  aws $AWS_ARGS s3 ls "s3://$S3_BUCKET/$S3_PREFIX/" | grep " PRE " -v | while read -r line;
     do
-      fileName=`echo $line|awk {'print $4'}`
+      fileName=$(echo $line| tr -s ' '| cut -d ' ' -f4)
       created=`echo $line|awk {'print $1" "$2'}`
       created=`date -d "$created" +%s`
-      older_than=`date -d "$DELETE_OLDER_THAN" +%s`
+
       if [ $created -lt $older_than ]
         then
           if [ $fileName != "" ]
             then
               echo "DELETING ${fileName}"
+              # shellcheck disable=SC2086
               aws $AWS_ARGS s3 rm s3://$S3_BUCKET/$S3_PREFIX/$fileName
           fi
       else
