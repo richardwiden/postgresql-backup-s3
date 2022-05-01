@@ -10,16 +10,9 @@ if [ "${RESTORE}" = "**None**" ]; then
   echo "Restore not set"
   exit 2
 elif [ "${RESTORE}" = "latest" ]; then
-  echo "Restoring latest"
-  echo "AWS"
-  echo $AWS_ARGS
-  res=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>&1)
-  echo $res | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
-  echo "$res" | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4
-  echo "$res"
-  SRC_FILE=$(echo $res | grep -v " PRE " | sort -r | head -1 | cut -d " " -f 4 2>&1)
-
-  echo "Restoring latest: $SRC_FILE"
+  RESTORE=$(aws $AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>&1 | grep -v " PRE "| sort -r| head -1| tr -s ' '| cut -d' ' -f4 )
+  echo "Restoring latest: $RESTORE"
+  SRC_FILE=${RESTORE}
 else
   echo "Restoring file: $RESTORE"
   SRC_FILE=${RESTORE}
