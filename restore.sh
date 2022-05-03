@@ -11,9 +11,9 @@ if [ "${RESTORE}" = "**None**" ]; then
   exit 2
 elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring latest."
-  S3_PATH=s3://${S3_BUCKET}/${S3_PREFIX}/
+  S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
   # shellcheck disable=SC2086
-  RESTORE="$(aws $AWS_ARGS s3 ls $S3_PATH | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
+  RESTORE="$(aws $S3_COMMAND | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
   echo "Restoring latest: ${RESTORE}"
   SRC_FILE=${RESTORE}
 else
@@ -41,7 +41,7 @@ else
   if [ -f "$SRC_FILE" ]; then
     echo "Restoring pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1"
     # shellcheck disable=SC2086
-    pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1
+    pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE || exit 2
   else
     echo "No file to restore from"; exit 2;
   fi
