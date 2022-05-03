@@ -11,7 +11,7 @@ echo "Run" > $LOGFILE
 cat $LOGFILE
 if [ "${RESTORE}" = "**None**" ]; then
   if [ "${SCHEDULE}" = "**None**" ]; then
-    sh backup.sh >> $LOGFILE 2>&1 || cat $LOGFILE && exit 2
+    sh backup.sh >> $LOGFILE 2>&1 || (cat $LOGFILE && exit 2)
     cat $LOGFILE
   else
       # shellcheck disable=SC2093
@@ -20,7 +20,7 @@ if [ "${RESTORE}" = "**None**" ]; then
   fi
 else
   echo "Restoring"
-  sh restore.sh >> $LOGFILE 2>&1 || cat $LOGFILE && exit 2
+  sh restore.sh >> $LOGFILE 2>&1   || (cat $LOGFILE && exit 2)
   cat $LOGFILE
 
 fi
