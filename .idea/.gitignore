@@ -1,0 +1,11 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+/misc.xml
+/modules.xml
+/postgresql-backup-s3.iml
+/vcs.xml
+/workspace.xml

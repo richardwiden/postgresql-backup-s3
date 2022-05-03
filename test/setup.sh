@@ -29,6 +29,6 @@ docker cp ./test/test_db_setup.sh postgres:/docker-entrypoint-initdb.d/test_db_s
 
 sleep 2
 
-docker build . -t postgresql-backup-s3
+docker build docker -t postgresql-backup-s3
 
 
