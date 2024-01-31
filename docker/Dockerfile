@@ -3,14 +3,16 @@ FROM $POSTGRES_BASE_IMAGE
 LABEL maintainer="richardwiden@gmail.com"
 ENV VIRTUAL_ENV=/opt/venv
 RUN apk update && \
-	apk add coreutils && \
+    apk add coreutils && \
     apk add tzdata && \
-	apk add python3 py3-pip && python3 -m venv $VIRTUAL_ENV && pip3 install --upgrade awscli && \
-	apk add openssl && \
-	apk add curl && \
-	curl -L --insecure https://github.com/odise/go-cron/releases/download/v0.0.6/go-cron-linux.gz | zcat > /usr/local/bin/go-cron && chmod u+x /usr/local/bin/go-cron  && \
-	apk del curl && \
-	rm -rf /var/cache/apk/*
+    apk add python3 py3-pip && \
+       python3 -m venv $VIRTUAL_ENV && . /opt/venv/bin/activate && \
+       pip3 install --upgrade awscli && \
+    apk add openssl && \
+    apk add curl && \
+    curl -L --insecure https://github.com/odise/go-cron/releases/download/v0.0.6/go-cron-linux.gz | zcat > /usr/local/bin/go-cron && chmod u+x /usr/local/bin/go-cron  && \
+    apk del curl && \
+    rm -rf /var/cache/apk/*
  
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
