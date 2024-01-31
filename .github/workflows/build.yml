@@ -80,7 +80,7 @@ jobs:
       - name: Extract metadata (tags, labels) for Docker
         if: ${{ !env.ACT }}
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         with:
           images: richardwiden/postgresql-backup-s3
 
