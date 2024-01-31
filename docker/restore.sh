@@ -24,6 +24,7 @@ fi
 DEST_FILE=${SRC_FILE}
 
 # shellcheck disable=SC2086
+echo "aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE"
 aws $AWS_ARGS s3 cp s3://$S3_BUCKET/$S3_PREFIX/$SRC_FILE $DEST_FILE  || exit 2
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
   echo "File not encrypted"
