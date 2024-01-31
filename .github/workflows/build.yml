@@ -98,7 +98,17 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
+      
+      - name: Build and push Docker image
+        if: ${{ !env.ACT }}
+        uses: docker/build-push-action@v2
+        with:
+          context: docker
+          push: true
+          build-args: "POSTGRES_BASE_IMAGE=postgres:15-alpine"
+          tags: "15"
+          labels: ${{ steps.meta.outputs.labels }}
+          
       - name: Update repo description
         if: ${{ !env.ACT }}
         uses: peter-evans/dockerhub-description@v2
