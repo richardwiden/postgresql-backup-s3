@@ -106,7 +106,7 @@ jobs:
           context: docker
           push: true
           build-args: "POSTGRES_BASE_IMAGE=postgres:15-alpine"
-          tags: "15"
+          tags: richardwiden/postgresql-backup-s3:15
           labels: ${{ steps.meta.outputs.labels }}
           
       - name: Update repo description
