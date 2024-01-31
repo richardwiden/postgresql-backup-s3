@@ -87,7 +87,7 @@ jobs:
       - name: Set up Docker Buildx
         if: ${{ !env.ACT }}
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
 
       - name: Build and push Docker image
