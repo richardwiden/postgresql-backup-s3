@@ -23,7 +23,7 @@ jobs:
       POSTGRES_HOST: postgres
       ENCRYPTION_PASSWORD: 'encryption_password'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Chmod test-files for windows
         run: chmod -R +x ./test
