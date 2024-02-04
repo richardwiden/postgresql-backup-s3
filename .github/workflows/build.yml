@@ -82,6 +82,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
+          flavor: |
+            latest=true
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=edge,enable=true,suffix=15
           images: richardwiden/postgresql-backup-s3
       
       - name: Extract metadata (tags, labels) for Docker 15
@@ -90,13 +97,13 @@ jobs:
         uses: docker/metadata-action@v5        
         with:
           flavor: |
-            latest=auto            
-            suffix=15
+            latest=false            
+            suffix=-15
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=edge,enable=true,suffix=15
+            type=edge,enable=true,suffix=-15
           images: richardwiden/postgresql-backup-s3
 
       - name: Set up Docker Buildx
