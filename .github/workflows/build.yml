@@ -77,11 +77,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata (tags, labels) for Docker 12
         if: ${{ !env.ACT }}
         id: meta
         uses: docker/metadata-action@v5
         with:
+          images: richardwiden/postgresql-backup-s3
+      
+      - name: Extract metadata (tags, labels) for Docker 15
+        if: ${{ !env.ACT }}
+        id: meta_15
+        uses: docker/metadata-action@v5        
+        with:
+          flavor: |
+            latest=false            
+            suffix=15
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
           images: richardwiden/postgresql-backup-s3
 
       - name: Set up Docker Buildx
@@ -90,7 +104,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image 12
         if: ${{ !env.ACT }}
         uses: docker/build-push-action@v5
         with:
@@ -99,15 +113,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Build and push Docker image
+      - name: Build and push Docker image 15
         if: ${{ !env.ACT }}
         uses: docker/build-push-action@v5
         with:
           context: docker
           push: true
           build-args: "POSTGRES_BASE_IMAGE=postgres:15-alpine"
-          tags: richardwiden/postgresql-backup-s3:15
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_2.outputs.tags }}
+          labels: ${{ steps.meta_2.outputs.labels }}
           
       - name: Update repo description
         if: ${{ !env.ACT }}
