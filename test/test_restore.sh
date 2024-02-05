@@ -1,13 +1,13 @@
 #!/bin/bash
 docker volume create pgdata;
-docker run --rm --network local --name "$POSTGRES_HOST" -d -p "5432:5432" \
+docker run --pull --rm --network local --name "$POSTGRES_HOST" -d -p "5432:5432" \
   -e POSTGRES_DB=$POSTGRES_DATABASE \
   -e POSTGRES_DATABASE \
   -e POSTGRES_USER \
   -e POSTGRES_PASSWORD \
   -e POSTGRES_PORT \
   -v pgdata:/var/lib/postgresql/data \
-  postgres:14-alpine
+  postgres:12-alpine
 
 sleep 1
 
@@ -17,4 +17,4 @@ docker run --rm --network local --name postgresql-backup-s3  \
   -e RESTORE \
   postgresql-backup-s3
 
-docker run --network local --rm jbergknoff/postgresql-client postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"
+docker run --pull --network local --rm richardwiden/postgresql-client:edge-12 postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"

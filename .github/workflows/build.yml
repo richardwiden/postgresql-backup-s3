@@ -7,20 +7,12 @@ on:
   pull_request:
     branches: [ master ]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-        matrix:
-          include:
-            - postgres_version: 12
-              suffix: ""
-            - postgres_version: 14
-              suffix: "-14"
-            - postgres_version: 15
-              suffix: "-15"
     container:
       image: lucasalt/act_base:latest
     env:
+      POSTGRES_BASE_IMAGE: postgres:12-alpine
       S3_ACCESS_KEY_ID: myawskey
       S3_SECRET_ACCESS_KEY: myawssecret
       S3_ENDPOINT: http://s3:9000
@@ -67,7 +59,20 @@ jobs:
 
       - name: Tear down
         run: ./test/tear_down.sh
-
+  deploy:
+    if: ${{ !github.event.act }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - postgres_version: 12
+            suffix: ""
+          - postgres_version: 14
+            suffix: "-14"
+          - postgres_version: 15
+            suffix: "-15"
+    steps:
+      - uses: actions/checkout@v4
       - name: Release
         if: ${{ !env.ACT && matrix.postgres_version == 12 }}
         uses: crowbarmaster/GH-Automatic-Releases@latest
@@ -116,7 +121,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-          
+
       - name: Update repo description
         if: ${{ !env.ACT && matrix.postgres_version == 12 }}
         uses: peter-evans/dockerhub-description@v4
@@ -125,3 +130,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: richardwiden/postgresql-backup-s3
           readme-filepath: ./README.md
+

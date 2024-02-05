@@ -24,7 +24,7 @@ docker run --rm --network local --name $POSTGRES_HOST -d -p $POSTGRES_PORT \
   -e POSTGRES_PASSWORD \
   -e POSTGRES_PORT \
   -v pgdata:/var/lib/postgresql/data \
-  postgres:14-alpine
+  "${POSTGRES_BASE_IMAGE}"
 docker cp ./test/test_db_setup.sh postgres:/docker-entrypoint-initdb.d/test_db_setup.sh
 
 sleep 2

@@ -1,6 +1,6 @@
 #!/bin/bash
 sleep 2
-docker run -i --rm --network local  jbergknoff/postgresql-client \
+docker run --pull -i --rm --network local  richardwiden/postgresql-client:edge-12 \
    -vON_ERROR_STOP=ON postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE <<-EOSQL
     drop table mytable;
 EOSQL
@@ -10,7 +10,7 @@ docker run -d --rm --network local --name postgresql-backup-s3 -p 18080:18080 \
   -e SCHEDULE  -e DELETE_OLDER_THAN \
   postgresql-backup-s3
 sleep 7
-docker run -i --rm --network local  jbergknoff/postgresql-client \
+docker run --pull -i --rm --network local  richardwiden/postgresql-client:edge-12 \
    -vON_ERROR_STOP=ON postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE <<-EOSQL
     create table mytable(myint integer);
 EOSQL
