@@ -1,5 +1,8 @@
 #!/bin/bash
 ./test/tear_down.sh
+docker pull -q amazon/aws-cli
+docker pull -q "${POSTGRES_BASE_IMAGE}"
+docker pull -q richardwiden/postgresql-client:edge-12
 
 docker network create local
 docker run --rm --network local --name s3 -d -p 9000 \

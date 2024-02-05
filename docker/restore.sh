@@ -14,7 +14,31 @@ elif [ "${RESTORE}" = "latest" ]; then
   S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
   # shellcheck disable=SC2086
   echo "aws $S3_COMMAND | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4"
-  RESTORE="$(aws $S3_COMMAND | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
+  touch /tmp/output || true
+  touch /tmp/error || true
+  if [ ! -f /tmp/output ]; then
+    echo "Error creating temp output file"
+    exit 4
+  fi
+  if [ ! -f /tmp/error ]; then
+      echo "Error creating temp err file"
+      exit 5
+    fi
+  aws $S3_COMMAND > /tmp/output 2>/tmp/error
+  if [ -s /tmp/output ]; then
+      echo "Error getting latest backup from S3"
+      cat /tmp/output
+      rm /tmp/output
+      exit 3
+    fi
+  RESTORE="$(cat /tmp/output | grep -v 'Note' | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
+  cat /tmp/output
+  if [ -s /tmp/output ]; then
+    echo "Error getting latest backup from S3"
+    cat /tmp/output
+    rm /tmp/output
+    exit 3
+  fi
   echo "Restoring latest: ${RESTORE}"
   SRC_FILE=${RESTORE}
 else

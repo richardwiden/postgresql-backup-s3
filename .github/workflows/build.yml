@@ -26,37 +26,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Chmod test-files for windows
+      - name: Chmod test-files (windows fix)
         run: chmod -R +x ./test
+
+      - name: LOGIN_ERROR - setup
+        run: ./test/setup.sh
+      - name: LOGIN_ERROR - backup
+        run: ./test/test_backup.sh
+      - name: LOGIN_ERROR - restore (should fail)
+        run: ./test/test_error_from_aws.sh
+        env:
+          RESTORE: "latest"
+          S3_SECRET_ACCESS_KEY: "WRONG_KEY"
+      - name: LOGIN_ERROR - teardown
+        run: ./test/tear_down.sh
 
       - name: Set up
         run: ./test/setup.sh
-
       - name: Test backup
         run: ./test/test_backup.sh
-
       - name: Test restore
         run: ./test/test_restore.sh
         env:
           RESTORE: "latest"
-
       - name: Tear down
         run: ./test/tear_down.sh
 
       - name: Set up Scheduled
         run: ./test/setup.sh
-
       - name: Test schedule backup
         run: ./test/test_backup_schedule.sh
         env:
           SCHEDULE: "@every 5s"
           DELETE_OLDER_THAN: "15 seconds ago"
-
       - name: Test restore of scheduled backup
         run: ./test/test_restore.sh
         env:
           RESTORE: "latest"
-
       - name: Tear down
         run: ./test/tear_down.sh
   deploy:
