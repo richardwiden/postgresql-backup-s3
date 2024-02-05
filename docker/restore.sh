@@ -14,15 +14,15 @@ elif [ "${RESTORE}" = "latest" ]; then
   S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
   touch /tmp/output || true
   touch /tmp/error || true
-  if [ ! -f /tmp/output ]; then
-    echo "Error creating temp output file"
-    exit 4
+  if [ ! -f /tmp/output ]; then echo "Error creating temp output file"; exit 4; fi
+  if [ ! -f /tmp/error ]; then  echo "Error creating temp err file"; exit 5; fi
+  echo "Running AWS"
+  if [ "$(aws $S3_COMMAND 2>/tmp/error > /tmp/output)" -eq 0 ];
+  then
+    echo "AWS done";
+  else
+    echo "AWS fail"
   fi
-  if [ ! -f /tmp/error ]; then
-    echo "Error creating temp err file"
-    exit 5
-  fi
-  aws $S3_COMMAND 2>/tmp/error > /tmp/output || true
   if [ -s /tmp/error ]; then
       echo "Error getting latest backup from S3"
       cat /tmp/error
@@ -35,6 +35,11 @@ elif [ "${RESTORE}" = "latest" ]; then
         cat /tmp/error
         exit 3
       fi
+  fi
+  if [ ! -s /tmp/output ]; then
+    echo "No output from AWS"
+    cat /tmp/error
+    exit 3
   fi
   RESTORE="$(cat /tmp/output | grep -v 'Note' | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
   echo "Restoring latest: ${RESTORE}"

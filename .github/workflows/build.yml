@@ -29,6 +29,32 @@ jobs:
       - name: Chmod test-files (windows fix)
         run: chmod -R +x ./test
 
+      - name: BACKUP_RESTORE - setup
+        run: ./test/setup.sh
+
+      - name: BACKUP_RESTORE - backup
+        run: ./test/test_backup.sh
+      - name: BACKUP_RESTORE - restore
+        run: ./test/test_restore.sh
+        env:
+          RESTORE: "latest"
+      - name: BACKUP_RESTORE - teardown
+        run: ./test/tear_down.sh
+      - name: BACKUP_SCHEDULE - setup
+        run: ./test/setup.sh
+
+      - name: BACKUP_SCHEDULE - backup
+        run: ./test/test_backup_schedule.sh
+        env:
+          SCHEDULE: "@every 5s"
+          DELETE_OLDER_THAN: "15 seconds ago"
+      - name: BACKUP_SCHEDULE - restore
+        run: ./test/test_restore.sh
+        env:
+          RESTORE: "latest"
+      - name: BACKUP_SCHEDULE - teardown
+        run: ./test/tear_down.sh
+
       - name: LOGIN_ERROR - setup
         run: ./test/setup.sh
       - name: LOGIN_ERROR - backup
@@ -39,31 +65,6 @@ jobs:
           RESTORE: "latest"
           S3_SECRET_ACCESS_KEY: "WRONG_KEY"
       - name: LOGIN_ERROR - teardown
-        run: ./test/tear_down.sh
-
-      - name: Set up
-        run: ./test/setup.sh
-      - name: Test backup
-        run: ./test/test_backup.sh
-      - name: Test restore
-        run: ./test/test_restore.sh
-        env:
-          RESTORE: "latest"
-      - name: Tear down
-        run: ./test/tear_down.sh
-
-      - name: Set up Scheduled
-        run: ./test/setup.sh
-      - name: Test schedule backup
-        run: ./test/test_backup_schedule.sh
-        env:
-          SCHEDULE: "@every 5s"
-          DELETE_OLDER_THAN: "15 seconds ago"
-      - name: Test restore of scheduled backup
-        run: ./test/test_restore.sh
-        env:
-          RESTORE: "latest"
-      - name: Tear down
         run: ./test/tear_down.sh
   deploy:
     if: ${{ !github.event.act }}
