@@ -16,5 +16,3 @@ docker run --rm --network local --name postgresql-backup-s3  \
   -e S3_ACCESS_KEY_ID -e S3_SECRET_ACCESS_KEY -e S3_ENDPOINT -e S3_BUCKET -e ENCRYPTION_PASSWORD \
   -e RESTORE \
   postgresql-backup-s3
-
-docker run --network local --rm richardwiden/postgresql-client:edge-12 postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"

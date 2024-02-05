@@ -10,10 +10,8 @@ if [ "${RESTORE}" = "**None**" ]; then
   echo "Restore not set"
   exit 2
 elif [ "${RESTORE}" = "latest" ]; then
-  echo "Restoring latest."
+  echo "Restoring LATEST."
   S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
-  # shellcheck disable=SC2086
-  echo "aws $S3_COMMAND | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4"
   touch /tmp/output || true
   touch /tmp/error || true
   if [ ! -f /tmp/output ]; then
@@ -21,24 +19,24 @@ elif [ "${RESTORE}" = "latest" ]; then
     exit 4
   fi
   if [ ! -f /tmp/error ]; then
-      echo "Error creating temp err file"
-      exit 5
-    fi
-  aws $S3_COMMAND > /tmp/output 2>/tmp/error
-  if [ -s /tmp/output ]; then
-      echo "Error getting latest backup from S3"
-      cat /tmp/output
-      rm /tmp/output
-      exit 3
-    fi
-  RESTORE="$(cat /tmp/output | grep -v 'Note' | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
-  cat /tmp/output
-  if [ -s /tmp/output ]; then
-    echo "Error getting latest backup from S3"
-    cat /tmp/output
-    rm /tmp/output
-    exit 3
+    echo "Error creating temp err file"
+    exit 5
   fi
+  aws $S3_COMMAND 2>/tmp/error > /tmp/output || true
+  if [ -s /tmp/error ]; then
+      echo "Error getting latest backup from S3"
+      cat /tmp/error
+      LOGIN_ERROR_COUNT=$(cat /tmp/error | grep -c 'An error occurred (SignatureDoesNotMatch) when calling the ListObjectsV2 operation: The request signature we calculated does not match the signature you provided. Check your key and signing method.')
+      if [ "$LOGIN_ERROR_COUNT" -eq "1" ]; then
+        echo "Error: SignatureDoesNotMatch. Check your key and signing method."
+        exit 0
+      else
+        echo "Error: Unknown error"
+        cat /tmp/error
+        exit 3
+      fi
+  fi
+  RESTORE="$(cat /tmp/output | grep -v 'Note' | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
   echo "Restoring latest: ${RESTORE}"
   SRC_FILE=${RESTORE}
 else

@@ -47,7 +47,7 @@ else
 
   S3_COMMAND="$AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/"
   # shellcheck disable=SC2086
-  aws $S3_COMMAND | grep " PRE " -v | tr -s ' '|  while read -r line;
+  aws $S3_COMMAND | grep -v 'Note' | grep " PRE " -v | tr -s ' '|  while read -r line;
     do
       date=$(echo $line| tr -s ' '| cut -d ' ' -f1)
       time=$(echo $line| tr -s ' '| cut -d ' ' -f2)
