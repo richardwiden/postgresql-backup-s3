@@ -3,6 +3,13 @@ set -e
 set -o pipefail
 . env.sh
 
+function runCommand()
+{
+  local command=$1
+  eval "$command" 2>/tmp/error > /tmp/output
+  return $?
+}
+
 echo "-----"
 echo "Restoring dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 
@@ -12,12 +19,16 @@ if [ "${RESTORE}" = "**None**" ]; then
 elif [ "${RESTORE}" = "latest" ]; then
   echo "Restoring LATEST."
   S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
+  # shellcheck disable=SC2089
+  S3_COMMAND="$S3 "
+  #UPLOAD=$(aws $S3_COMMAND --output json)
+  #aws $S3 s3api list-objects-v2 --bucket $S3_BUCKET --prefix sql --query 'reverse(sort_by(Contents || *[], &LastModified))[0].Key'
   touch /tmp/output || true
   touch /tmp/error || true
   if [ ! -f /tmp/output ]; then echo "Error creating temp output file"; exit 4; fi
   if [ ! -f /tmp/error ]; then  echo "Error creating temp err file"; exit 5; fi
   echo "Running AWS"
-  if [ "$(aws $S3_COMMAND 2>/tmp/error > /tmp/output)" -eq 0 ];
+  if [ $(($(runCommand "aws $AWS_ARGS s3api list-objects-v2 --bucket $S3_BUCKET --prefix $S3_PREFIX --query 'reverse(sort_by(Contents || *[], &LastModified))[0].Key'"))) -eq 0 ]
   then
     echo "AWS done";
   else
@@ -41,7 +52,12 @@ elif [ "${RESTORE}" = "latest" ]; then
     cat /tmp/error
     exit 3
   fi
-  RESTORE="$(cat /tmp/output | grep -v 'Note' | grep -v ' PRE '| sort -r| head -1| tr -s ' '| cut -d ' ' -f4)"
+  echo "Output from AWS ---- "
+  cat /tmp/output
+  echo "Output from AWS ---- "
+
+
+  RESTORE="$(cut -d '/' -f2 /tmp/output  | cut -d '"' -f1)"
   echo "Restoring latest: ${RESTORE}"
   SRC_FILE=${RESTORE}
 else

@@ -30,7 +30,13 @@ fi
 
 S3_COMMAND="$AWS_ARGS s3 cp $SRC_FILE s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 echo "Uploading dump to $S3_COMMAND"
- # shellcheck disable=SC2086
+
+# shellcheck disable=SC2046
+if [ $(pgrep aws | wc -l) -gt 2 ]; then
+  echo "Another backup is running"
+  exit 2
+fi
+
 aws $S3_COMMAND || exit 2
 
 

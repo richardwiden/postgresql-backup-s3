@@ -5,6 +5,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN apk update && \
     apk add coreutils && \
     apk add tzdata && \
+    apk add jq && \
     apk add python3 py3-pip && \
        python3 -m venv $VIRTUAL_ENV && . /opt/venv/bin/activate && \
        pip3 install --upgrade awscli && \
