@@ -11,8 +11,13 @@ echo "Run" > $LOGFILE
 cat $LOGFILE
 if [ "${RESTORE}" = "**None**" ]; then
   if [ "${SCHEDULE}" = "**None**" ]; then
-    bash backup.sh >> $LOGFILE 2>&1 || (cat $LOGFILE && exit 2)
+    bash backup.sh >> $LOGFILE 2>&1
+    ERROR=$?
     cat $LOGFILE
+    if [ $ERROR -ne 0 ]; then
+      echo "Error: $ERROR"
+      exit $ERROR
+    fi
   else
       # shellcheck disable=SC2093
       exec go-cron "$SCHEDULE" /bin/bash backup.sh >> $LOGFILE 2>&1

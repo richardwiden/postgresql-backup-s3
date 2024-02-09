@@ -37,12 +37,25 @@ jobs:
       ENCRYPTION_PASSWORD: 'encryption_password'
     steps:
       - uses: actions/checkout@v4
-
       - name: Chmod test-files (windows fix)
         run: chmod -R +x ./test
-
       - name: CLEANUP PREVIOUS RUNS
         run: ./test/tear_down.sh
+
+      - name: TEST_ERRORS - setup
+        run: ./test/setup.sh
+      - name: TEST_ERRORS - backup
+        run: ./test/test_backup.sh
+      - name: TEST_ERRORS - wrong_password_on_restore
+        run: ./test/test_error_from_aws.sh
+        env:
+          RESTORE: "latest"
+          S3_SECRET_ACCESS_KEY: "WRONG_KEY"
+      - name: TEST_ERRORS - multiple_backups
+        run: ./test/test_multiple_backups_aborting.sh
+      - name: TEST_ERRORS - teardown
+        run: ./test/tear_down.sh
+
 
       - name: BACKUP_RESTORE - setup
         run: ./test/setup.sh
@@ -54,9 +67,9 @@ jobs:
           RESTORE: "latest"
       - name: BACKUP_RESTORE - teardown
         run: ./test/tear_down.sh
+
       - name: BACKUP_SCHEDULE - setup
         run: ./test/setup.sh
-
       - name: BACKUP_SCHEDULE - backup
         run: ./test/test_backup_schedule.sh
         env:

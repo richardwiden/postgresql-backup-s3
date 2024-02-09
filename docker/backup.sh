@@ -3,11 +3,16 @@ set -e
 set -o pipefail
 . env.sh
 
-# shellcheck disable=SC2046
-if [ $(pgrep aws | wc -l) -gt 2 ] || [ $(pgrep backup.sh | wc -l) -gt 2 ];
+#Unable to check for script running due to subcommands [ $(pgrep -fl backup.sh | wc -l) -gt 1 ] ;
+if \
+  [ $(pgrep aws | wc -l) -gt 0 ] || \
+  [ $(pgrep pg_dumpall | wc -l) -gt 0 ] || \
+  [ $(pgrep pg_dump | wc -l) -gt 0 ] || \
+  [ $(pgrep openssl | wc -l) -gt 0 ] || \
+  [ $(pgrep gzip | wc -l) -gt 0 ]
 then
   echo "Another backup is running"
-  exit 2
+  exit 33
 fi
 
 echo "-----"

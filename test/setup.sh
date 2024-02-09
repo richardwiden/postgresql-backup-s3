@@ -23,17 +23,11 @@ docker run --rm --network ${TEST_NETWORK} --name ${AWS_CLI_HOST} \
   amazon/aws-cli \
     --endpoint-url $S3_ENDPOINT \
     s3 mb s3://$S3_BUCKET
-docker volume create ${POSTGRES_VOLUME};
-docker run --rm --network ${TEST_NETWORK} --name $POSTGRES_HOST -d -p $POSTGRES_PORT \
-  -e POSTGRES_DB=$POSTGRES_DATABASE \
-  -e POSTGRES_DATABASE \
-  -e POSTGRES_USER \
-  -e POSTGRES_PASSWORD \
-  -e POSTGRES_PORT \
-  -v ${POSTGRES_VOLUME}:/var/lib/postgresql/data \
-  "${POSTGRES_BASE_IMAGE}"
-docker cp ./test/test_db_setup.sh ${POSTGRES_HOST}:/docker-entrypoint-initdb.d/test_db_setup.sh
 
-sleep 2
+./test/start_postgres.sh
+
+
+
+
 
 
