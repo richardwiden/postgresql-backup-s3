@@ -1,9 +1,12 @@
 #!/bin/bash
+set -e
+
 ./test/tear_down.sh
 docker pull -q amazon/aws-cli
 docker pull -q ${POSTGRES_BASE_IMAGE}
 docker pull -q ${POSTGRES_CLIENT_IMAGE}
-
+docker pull -q altmannmarcelo/minio:latest
+docker build docker -t ${POSTGRES_BACKUP_IMAGE} --build-arg POSTGRES_BASE_IMAGE
 
 docker network create ${TEST_NETWORK}
 docker run --rm --network ${TEST_NETWORK} --name ${S3_HOST} -d -p 9000 \
@@ -32,7 +35,5 @@ docker run --rm --network ${TEST_NETWORK} --name $POSTGRES_HOST -d -p $POSTGRES_
 docker cp ./test/test_db_setup.sh ${POSTGRES_HOST}:/docker-entrypoint-initdb.d/test_db_setup.sh
 
 sleep 2
-
-docker build docker -t ${POSTGRES_BACKUP_IMAGE} --build-arg POSTGRES_BASE_IMAGE
 
 

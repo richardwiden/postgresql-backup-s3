@@ -1,5 +1,7 @@
 #!/bin/bash
-docker volume create pgdata;
+set -e
+
+docker volume create ${POSTGRES_VOLUME};
 docker run --rm --network ${TEST_NETWORK} --name ${POSTGRES_HOST} -d -p 5432 \
   -e POSTGRES_DB=$POSTGRES_DATABASE \
   -e POSTGRES_DATABASE \

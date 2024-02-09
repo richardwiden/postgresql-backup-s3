@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 docker kill $S3_HOST > /dev/null  2>&1 || true
 docker rm $S3_HOST > /dev/null  2>&1 || true
 docker kill $POSTGRES_HOST > /dev/null  2>&1 || true
