@@ -65,7 +65,7 @@ if [ "${DELETE_OLDER_THAN}" = "**None**" ]; then
   echo "Not deleting old backups"
 else
   echo "Checking for files older than ${DELETE_OLDER_THAN}"
-  older_than=$(date -d "${DELETE_OLDER_THAN}" +%s)
+  older_than=$(date -d "${DELETE_OLDER_THAN}" +%Y-%m-%dT%H:%M:%S.%3NZ)
   echo "older_than: $older_than"
   S3_COMMAND="$AWS_ARGS s3api list-objects --bucket $S3_BUCKET --prefix $S3_PREFIX --query \"Contents[?LastModified<='$older_than'].Key\" --output=json"
   # shellcheck disable=SC2086
