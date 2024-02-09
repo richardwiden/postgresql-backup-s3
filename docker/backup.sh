@@ -3,13 +3,21 @@ set -e
 set -o pipefail
 . env.sh
 
+# shellcheck disable=SC2046
+if [ $(pgrep aws | wc -l) -gt 2 ] || [ $(pgrep backup.sh | wc -l) -gt 2 ];
+then
+  echo "Another backup is running"
+  exit 2
+fi
+
 echo "-----"
 echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
 
 SRC_FILE=${POSTGRES_DATABASE}_$(date +"%Y%m%dT%H%M%SZ").sql.gz
 DEST_FILE=$SRC_FILE
 
-if [ "${POSTGRES_DATABASE}" == "all" ]; then
+if [ "${POSTGRES_DATABASE}" == "all" ];
+then
   pg_dumpall $POSTGRES_HOST_OPTS | gzip > $SRC_FILE
 else
   echo "pg_dump $POSTGRES_HOST_OPTS -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > $SRC_FILE"
@@ -17,7 +25,8 @@ else
 fi
 
 
-if [ "${ENCRYPTION_PASSWORD}" = "**None**" ]; then
+if [ "${ENCRYPTION_PASSWORD}" = "**None**" ];
+then
   echo "Not encrypted"
 else
   echo "Encrypting ${SRC_FILE}"
@@ -30,12 +39,6 @@ fi
 
 S3_COMMAND="$AWS_ARGS s3 cp $SRC_FILE s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 echo "Uploading dump to $S3_COMMAND"
-
-# shellcheck disable=SC2046
-if [ $(pgrep aws | wc -l) -gt 2 ]; then
-  echo "Another backup is running"
-  exit 2
-fi
 
 aws $S3_COMMAND || exit 2
 
