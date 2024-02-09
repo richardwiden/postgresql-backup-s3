@@ -22,6 +22,5 @@ sleep 7
 
 docker exec ${POSTGRES_BACKUP_HOST}  cat /var/log/backup.log
 docker kill ${POSTGRES_BACKUP_HOST}
-docker rm ${POSTGRES_BACKUP_HOST}
 docker kill ${POSTGRES_HOST}
 docker volume rm ${POSTGRES_VOLUME}
