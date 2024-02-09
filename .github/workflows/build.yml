@@ -41,6 +41,8 @@ jobs:
         run: chmod -R +x ./test
       - name: CLEANUP PREVIOUS RUNS
         run: ./test/tear_down.sh
+      - name: PULL IMAGES
+        run: ./test/pull_images.sh
 
       - name: TEST_ERRORS - setup
         run: ./test/setup.sh

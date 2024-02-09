@@ -48,36 +48,35 @@ echo "Uploading dump to $S3_COMMAND"
 aws $S3_COMMAND || exit 2
 
 
-LATEST_BACKUP=latest.gz
+if [ "${ENCRYPTION_PASSWORD}" = "**None**" ];
+then
+  echo "Not encrypting latest backup"
+  LATEST_BACKUP=latest.gz
+else
+  echo "Not encrypting latest backup"
+  LATEST_BACKUP=latest.gz.enc
+fi
 rm "$LATEST_BACKUP" 2>/dev/null > /dev/null || true
 rm "$LATEST_BACKUP.enc" 2>/dev/null > /dev/null || true
 mv "$SRC_FILE" "$LATEST_BACKUP" #Save last backup in internal file system
 
+echo "Handling old files"
 if [ "${DELETE_OLDER_THAN}" = "**None**" ]; then
   echo "Not deleting old backups"
 else
   echo "Checking for files older than ${DELETE_OLDER_THAN}"
-  older_than=$(date -d "$DELETE_OLDER_THAN" +%s)
-
-  S3_COMMAND="$AWS_ARGS s3 ls s3://$S3_BUCKET/$S3_PREFIX/"
+  older_than=$(date -d "${DELETE_OLDER_THAN}" +%s)
+  echo "older_than: $older_than"
+  S3_COMMAND="$AWS_ARGS s3api list-objects --bucket $S3_BUCKET --prefix $S3_PREFIX --query \"Contents[?LastModified<='$older_than'].Key\" --output=json"
   # shellcheck disable=SC2086
-  aws $S3_COMMAND | grep -v 'Note' | grep " PRE " -v | tr -s ' '|  while read -r line;
-    do
-      date=$(echo $line| tr -s ' '| cut -d ' ' -f1)
-      time=$(echo $line| tr -s ' '| cut -d ' ' -f2)
-      created=$(date -d "$date $time" +%s)
-      fileName=$(echo $line| tr -s ' '| cut -d ' ' -f4)
-      if [ "$created" -lt "$older_than" ]
-        then
-          if [ "$fileName" != "" ]
-            then
-              echo "DELETING ${fileName}"
-              aws $AWS_ARGS s3 rm "s3://$S3_BUCKET/$S3_PREFIX/$fileName"
-          fi
-      else
-          echo "${fileName} not older than ${DELETE_OLDER_THAN}"
-      fi
-    done;
+  echo "aws $S3_COMMAND"
+  RESULT=$(aws $S3_COMMAND)
+  echo "RESULT: $RESULT"
+  echo $RESULT | jq -r '.[]' | while read -r line
+  do
+    echo "Deleting $line"
+    aws $AWS_ARGS s3 rm "s3://$S3_BUCKET/$S3_PREFIX/$fileName"
+  done;
 fi
 
 echo "SQL backup finished"
