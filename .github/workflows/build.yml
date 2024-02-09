@@ -38,11 +38,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: CLEANUP PREVIOUS RUNS
-        run: ./test/tear_down.sh
-
       - name: Chmod test-files (windows fix)
         run: chmod -R +x ./test
+
+      - name: CLEANUP PREVIOUS RUNS
+        run: ./test/tear_down.sh
 
       - name: BACKUP_RESTORE - setup
         run: ./test/setup.sh
