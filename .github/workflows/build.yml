@@ -44,6 +44,20 @@ jobs:
       - name: PULL IMAGES
         run: ./test/pull_images.sh
 
+      - name: BACKUP_SCHEDULE - setup
+        run: ./test/setup.sh
+      - name: BACKUP_SCHEDULE - backup
+        run: ./test/test_backup_schedule.sh
+        env:
+          SCHEDULE: "@every 5s"
+          DELETE_OLDER_THAN: "5 seconds ago"
+      - name: BACKUP_SCHEDULE - restore
+        run: ./test/test_restore.sh
+        env:
+          RESTORE: "latest"
+      - name: BACKUP_SCHEDULE - teardown
+        run: ./test/tear_down.sh
+
       - name: TEST_ERRORS - setup
         run: ./test/setup.sh
       - name: TEST_ERRORS - backup
@@ -58,7 +72,6 @@ jobs:
       - name: TEST_ERRORS - teardown
         run: ./test/tear_down.sh
 
-
       - name: BACKUP_RESTORE - setup
         run: ./test/setup.sh
       - name: BACKUP_RESTORE - backup
@@ -68,20 +81,6 @@ jobs:
         env:
           RESTORE: "latest"
       - name: BACKUP_RESTORE - teardown
-        run: ./test/tear_down.sh
-
-      - name: BACKUP_SCHEDULE - setup
-        run: ./test/setup.sh
-      - name: BACKUP_SCHEDULE - backup
-        run: ./test/test_backup_schedule.sh
-        env:
-          SCHEDULE: "@every 5s"
-          DELETE_OLDER_THAN: "15 seconds ago"
-      - name: BACKUP_SCHEDULE - restore
-        run: ./test/test_restore.sh
-        env:
-          RESTORE: "latest"
-      - name: BACKUP_SCHEDULE - teardown
         run: ./test/tear_down.sh
 
       - name: LOGIN_ERROR - setup
@@ -95,6 +94,7 @@ jobs:
           S3_SECRET_ACCESS_KEY: "WRONG_KEY"
       - name: LOGIN_ERROR - teardown
         run: ./test/tear_down.sh
+
   deploy:
     if: ${{ !github.event.act }}
     runs-on: ubuntu-latest

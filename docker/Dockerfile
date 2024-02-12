@@ -33,8 +33,16 @@ ENV POSTGRES_DATABASE=**None** \
     SCHEDULE=**None** \
     ENCRYPTION_PASSWORD=**None** \
     DELETE_OLDER_THAN=**None**  \
-    RESTORE=**None**
+    RESTORE=**None** \
+    LOGDIR=/var/log/backup \
+    LOG=$LOGDIR/backup.log \
+    ERR=${LOGDIR}/error.log
 
+
+
+RUN mkdir -p ${LOGDIR} && \
+    ln -sf /dev/stdout ${LOG} && \
+    ln -sf /dev/stderr ${ERR}
 COPY backup.sh  restore.sh env.sh run.sh ./
 RUN chmod 555 backup.sh  restore.sh env.sh run.sh
 CMD ["sh", "run.sh"]

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-./test/start_postgres.sh no_init
+./test/setup_postgres.sh no_init
 
 docker run --rm --network ${TEST_NETWORK}  --name ${POSTGRES_BACKUP_HOST}  \
   -e POSTGRES_DATABASE -e POSTGRES_USER -e POSTGRES_PASSWORD -e POSTGRES_HOST -e POSTGRES_PORT \

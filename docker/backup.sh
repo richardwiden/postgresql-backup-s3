@@ -67,15 +67,16 @@ else
   echo "Checking for files older than ${DELETE_OLDER_THAN}"
   older_than=$(date -d "${DELETE_OLDER_THAN}" +%Y-%m-%dT%H:%M:%S.%3NZ)
   echo "older_than: $older_than"
-  S3_COMMAND="$AWS_ARGS s3api list-objects --bucket $S3_BUCKET --prefix $S3_PREFIX --query \"Contents[?LastModified<='$older_than'].Key\" --output=json"
+  QUERY="(Contents[?LastModified<='$older_than'].Key|[])"
+  S3_COMMAND="${AWS_ARGS} s3api list-objects --bucket ${S3_BUCKET} --prefix ${S3_PREFIX} --query ${QUERY}  --output=json"
   # shellcheck disable=SC2086
-  echo "aws $S3_COMMAND"
+  echo "aws ${S3_COMMAND}"
   RESULT=$(aws $S3_COMMAND)
-  echo "RESULT: $RESULT"
-  echo $RESULT | jq -r '.[]' | while read -r line
+  echo "RESULT: ${RESULT}"
+  echo ${RESULT} | jq -r '.[]?' | while read -r filename
   do
-    echo "Deleting $line"
-    aws $AWS_ARGS s3 rm "s3://$S3_BUCKET/$S3_PREFIX/$fileName"
+    echo "Deleting old backup: ${filename} from S3"
+    aws ${AWS_ARGS} s3 rm "s3://${S3_BUCKET}/${S3_PREFIX}/${filename}"
   done;
 fi
 
