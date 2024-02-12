@@ -1,14 +1,6 @@
 #!/bin/bash
 set -e
-docker volume create ${POSTGRES_VOLUME};
-docker run --rm --network ${TEST_NETWORK}  --name "$POSTGRES_HOST" -d -p 5432 \
-  -e POSTGRES_DB=$POSTGRES_DATABASE \
-  -e POSTGRES_DATABASE \
-  -e POSTGRES_USER \
-  -e POSTGRES_PASSWORD \
-  -e POSTGRES_PORT \
-  -v ${POSTGRES_VOLUME}:/var/lib/postgresql/data \
-  ${POSTGRES_BASE_IMAGE}
+./test/setup_postgres.sh no_init
 
 sleep 1
 

@@ -11,41 +11,44 @@ if \
   [ $(pgrep openssl | wc -l) -gt 0 ] || \
   [ $(pgrep gzip | wc -l) -gt 0 ]
 then
-  echo "date":"$(date)", "message":"Another backup is running" | jq >&2
+  date
+  echo "Another backup is running" >&2
   exit 33
 fi
 
-echo "-----"
-echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
+echo "-----">&1
+echo "stdout" >&1
+echo "stderr" >&2
+echo "Creating dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}...">&1
 
 SRC_FILE=${POSTGRES_DATABASE}_$(date +"%Y%m%dT%H%M%SZ").sql.gz
-DEST_FILE=$SRC_FILE
+DEST_FILE=${SRC_FILE}
 
 if [ "${POSTGRES_DATABASE}" == "all" ];
 then
-  pg_dumpall $POSTGRES_HOST_OPTS | gzip > $SRC_FILE
+  pg_dumpall ${POSTGRES_HOST_OPTS} | gzip > "${SRC_FILE}" >&1
 else
-  echo "pg_dump $POSTGRES_HOST_OPTS -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > $SRC_FILE"
-  pg_dump $POSTGRES_HOST_OPTS -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > $SRC_FILE
+  echo "pg_dump ${POSTGRES_HOST_OPTS} -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > ${SRC_FILE}"
+  pg_dump ${POSTGRES_HOST_OPTS} -C -w --format=c --blobs --no-owner --no-privileges --no-acl "${POSTGRES_DATABASE}" > "${SRC_FILE}"
 fi
 
 
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ];
 then
-  echo "Not encrypted"
+  echo "Not encrypted" >&1
 else
-  echo "Encrypting ${SRC_FILE}"
+  echo "Encrypting ${SRC_FILE}" >&1
   DEST_FILE="$SRC_FILE.enc"
-  openssl enc -aes-256-cbc -iter 1000 -in "$SRC_FILE" -out "${DEST_FILE}" -k "$ENCRYPTION_PASSWORD"
-  rm "$SRC_FILE" #Delete unencrypted file in local file system
-  SRC_FILE=$DEST_FILE
+  openssl enc -aes-256-cbc -iter 1000 -in "${SRC_FILE}" -out "${DEST_FILE}" -k "${ENCRYPTION_PASSWORD}"
+  rm "${SRC_FILE}" #Delete unencrypted file in local file system
+  SRC_FILE=${DEST_FILE}
 
 fi
 
 S3_COMMAND="$AWS_ARGS s3 cp $SRC_FILE s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
-echo "Uploading dump to $S3_COMMAND"
+echo "Uploading dump to $S3_COMMAND" >&1
 
-aws $S3_COMMAND || exit 2
+aws ${S3_COMMAND}
 
 
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ];

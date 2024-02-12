@@ -10,14 +10,14 @@ function runCommand()
   return $?
 }
 
-echo "-----"
-echo "Restoring dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..."
+echo "-----" >&1
+echo "Restoring dump of ${POSTGRES_DATABASE} database from ${POSTGRES_HOST}..." >&1
 
 if [ "${RESTORE}" = "**None**" ]; then
   echo "Restore not set"
   exit 2
 elif [ "${RESTORE}" = "latest" ]; then
-  echo "Restoring LATEST."
+  echo "Restoring LATEST." >&1
   S3_COMMAND="$AWS_ARGS s3 ls s3://${S3_BUCKET}/${S3_PREFIX}/"
   # shellcheck disable=SC2089
   S3_COMMAND="$S3 "
@@ -25,36 +25,34 @@ elif [ "${RESTORE}" = "latest" ]; then
   #aws $S3 s3api list-objects-v2 --bucket $S3_BUCKET --prefix sql --query 'reverse(sort_by(Contents || *[], &LastModified))[0].Key'
   touch /tmp/output || true
   touch /tmp/error || true
-  if [ ! -f /tmp/output ]; then echo "Error creating temp output file"; exit 4; fi
-  if [ ! -f /tmp/error ]; then  echo "Error creating temp err file"; exit 5; fi
-  echo "Running AWS"
+  if [ ! -f /tmp/output ];  then echo "Error creating temp output file" >&2; exit 4; fi
+  if [ ! -f /tmp/error ];   then echo "Error creating temp err file"    >&2; exit 5; fi
+  echo "Running AWS" >&1
   if [ $(($(runCommand "aws $AWS_ARGS s3api list-objects-v2 --bucket $S3_BUCKET --prefix $S3_PREFIX --query 'reverse(sort_by(Contents || *[], &LastModified))[0].Key'"))) -eq 0 ]
   then
-    echo "AWS done";
+    echo "AWS done" >&1
   else
-    echo "AWS fail"
+    echo "AWS fail" >&2
   fi
   if [ -s /tmp/error ]; then
-      echo "Error getting latest backup from S3"
-      cat /tmp/error
-      LOGIN_ERROR_COUNT=$(cat /tmp/error | grep -c 'An error occurred (SignatureDoesNotMatch) when calling the ListObjectsV2 operation: The request signature we calculated does not match the signature you provided. Check your key and signing method.')
+      echo "Error getting latest backup from S3" >&1
+      LOGIN_ERROR_COUNT=$(grep -c 'An error occurred (SignatureDoesNotMatch) when calling the ListObjectsV2 operation: The request signature we calculated does not match the signature you provided. Check your key and signing method.'  /tmp/error)
       if [ "$LOGIN_ERROR_COUNT" -eq "1" ]; then
-        echo "Error: SignatureDoesNotMatch. Check your key and signing method."
+        echo "Found expected LoginError" >&1
         exit 0
       else
         echo "Error: Unknown error"
-        cat /tmp/error
+        cat /tmp/error >&2
         exit 3
       fi
   fi
   if [ ! -s /tmp/output ]; then
-    echo "No output from AWS"
-    cat /tmp/error
+    echo "No output from AWS" >&2
     exit 3
   fi
-  echo "Output from AWS ---- "
-  cat /tmp/output
-  echo "Output from AWS ---- "
+  echo "Output from AWS ---- " >&1
+  cat /tmp/output >&1
+  echo "Output from AWS ---- " >&1
 
 
   RESTORE="$(cut -d '/' -f2 /tmp/output  | cut -d '"' -f1)"
@@ -80,19 +78,18 @@ else
 fi
 
 if [ "${POSTGRES_DATABASE}" == "all" ]; then
-  echo "Can't restore all"
+  echo "Can't restore all" >&2
   exit 2
 else
-  if [ -f "$SRC_FILE" ]; then
-    echo "Restoring pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE 2>&1"
-    # shellcheck disable=SC2086
-    pg_restore $POSTGRES_HOST_OPTS -d $POSTGRES_DATABASE  --no-owner --no-privileges $SRC_FILE || exit 2
-  else
-    echo "No file to restore from"; exit 2;
+  if [ ! -f "$SRC_FILE" ]; then
+    echo "No file to restore from" >&2
+        exit 2
   fi
+  echo "Restoring pg_restore ${POSTGRES_HOST_OPTS} -d ${POSTGRES_DATABASE}  --no-owner --no-privileges ${SRC_FILE}" >&1
+  pg_restore ${POSTGRES_HOST_OPTS} -d ${POSTGRES_DATABASE}  --no-owner --no-privileges $SRC_FILE
 fi
 
 
-echo "SQL restore finished"
-echo "-----"
+echo "SQL restore finished" >&1
+echo "-----" >&1
 exit 0
