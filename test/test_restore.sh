@@ -10,6 +10,6 @@ docker run --rm --network ${TEST_NETWORK}  --name ${POSTGRES_BACKUP_HOST}  \
   -e RESTORE \
   ${POSTGRES_BACKUP_IMAGE}
 
-docker run --network ${TEST_NETWORK} --rm \
-  ${POSTGRES_CLIENT_IMAGE} \
-  postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE -c "select * from mytable;"
+docker run --network "${TEST_NETWORK}" --rm \
+  "${POSTGRES_CLIENT_IMAGE}" \
+  "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DATABASE" -c "select * from mytable;"

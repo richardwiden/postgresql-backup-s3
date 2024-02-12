@@ -16,6 +16,6 @@ then
 fi
 while [ "$health_status" != "healthy" ]; do
     health_status=$(docker inspect --format='{{.State.Health.Status}}' "${POSTGRES_HOST}")
-    echo "${POSTGRES_HOST}: $health_status"
-    sleep 1
+    sleep 0.01s
 done
+echo "${POSTGRES_HOST}: $health_status"

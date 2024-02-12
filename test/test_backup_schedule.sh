@@ -17,7 +17,7 @@ sleep 15
 REMOVED_BACKUPS_COUNT=$(docker logs "${POSTGRES_BACKUP_HOST}" 2>&1 | grep -c "Deleting old backup")
 
 docker run -i --rm --network ${TEST_NETWORK} ${POSTGRES_CLIENT_IMAGE} \
-   -vON_ERROR_STOP=ON postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE} <<-EOSQL
+   -vON_ERROR_STOP=ON "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}" <<-EOSQL
     create table mytable(myint integer);
 EOSQL
 sleep 7

@@ -9,9 +9,9 @@ docker run --rm --network "${TEST_NETWORK}" --name "${S3_HOST}" -d -p 9000 \
 sleep 1
 while [ "$health_status" != "healthy" ]; do
     health_status=$(docker inspect --format='{{.State.Health.Status}}' "${S3_HOST}")
-    echo "${S3_HOST}: $health_status"
-    sleep 1
+    sleep 0.01s
 done
+echo "${S3_HOST}: $health_status"
 
 docker run --rm -it --network "${TEST_NETWORK}" --name "${AWS_CLI_HOST}" \
   -e AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}" \

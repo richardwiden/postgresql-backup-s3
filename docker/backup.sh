@@ -26,10 +26,10 @@ DEST_FILE=${SRC_FILE}
 
 if [ "${POSTGRES_DATABASE}" == "all" ];
 then
-  pg_dumpall ${POSTGRES_HOST_OPTS} | gzip > "${SRC_FILE}" >&1
+  pg_dumpall ${POSTGRES_HOST_OPTS} | gzip > "${SRC_FILE}" >&1  || exit 32
 else
   echo "pg_dump ${POSTGRES_HOST_OPTS} -C -w --format=c --blobs --no-owner --no-privileges --no-acl $POSTGRES_DATABASE > ${SRC_FILE}"
-  pg_dump ${POSTGRES_HOST_OPTS} -C -w --format=c --blobs --no-owner --no-privileges --no-acl "${POSTGRES_DATABASE}" > "${SRC_FILE}"
+  pg_dump ${POSTGRES_HOST_OPTS} -C -w --format=c --blobs --no-owner --no-privileges --no-acl "${POSTGRES_DATABASE}" > "${SRC_FILE}"  || exit 30
 fi
 
 
@@ -39,7 +39,7 @@ then
 else
   echo "Encrypting ${SRC_FILE}" >&1
   DEST_FILE="$SRC_FILE.enc"
-  openssl enc -aes-256-cbc -iter 1000 -in "${SRC_FILE}" -out "${DEST_FILE}" -k "${ENCRYPTION_PASSWORD}"
+  openssl enc -aes-256-cbc -iter 1000 -in "${SRC_FILE}" -out "${DEST_FILE}" -k "${ENCRYPTION_PASSWORD}"  || exit 31
   rm "${SRC_FILE}" #Delete unencrypted file in local file system
   SRC_FILE=${DEST_FILE}
 
@@ -48,7 +48,7 @@ fi
 S3_COMMAND="$AWS_ARGS s3 cp $SRC_FILE s3://$S3_BUCKET/$S3_PREFIX/$DEST_FILE"
 echo "Uploading dump to $S3_COMMAND" >&1
 
-aws ${S3_COMMAND}
+aws ${S3_COMMAND}  || exit 34
 
 
 if [ "${ENCRYPTION_PASSWORD}" = "**None**" ];
@@ -64,23 +64,30 @@ rm "$LATEST_BACKUP.enc" 2>/dev/null > /dev/null || true
 mv "$SRC_FILE" "$LATEST_BACKUP" #Save last backup in internal file system
 
 echo "Handling old files"
-if [ "${DELETE_OLDER_THAN}" = "**None**" ]; then
+if [ "${DELETE_OLDER_THAN}" = "**None**" ]
+then
   echo "Not deleting old backups"
 else
   echo "Checking for files older than ${DELETE_OLDER_THAN}"
   older_than=$(date -d "${DELETE_OLDER_THAN}" +%Y-%m-%dT%H:%M:%S.%3NZ)
-  echo "older_than: $older_than"
   QUERY="(Contents[?LastModified<='$older_than'].Key|[])"
   S3_COMMAND="${AWS_ARGS} s3api list-objects --bucket ${S3_BUCKET} --prefix ${S3_PREFIX} --query ${QUERY} --output=json"
   # shellcheck disable=SC2086
   echo "aws ${S3_COMMAND}"
-  RESULT=$(aws $S3_COMMAND)
+  RESULT=$(aws $S3_COMMAND || exit 35)
   echo "RESULT: ${RESULT}"
   echo ${RESULT} | jq -r '.[]?' | while read -r KEY
   do
-    echo "Deleting old backup: ${filename} from S3"
-    aws ${AWS_ARGS} s3 rm "s3://${S3_BUCKET}/${KEY}" #key has prefix as part of it
+    DELETED="YES"
+    echo "Deleting old backup: ${KEY} from S3"
+    aws ${AWS_ARGS} s3 rm "s3://${S3_BUCKET}/${KEY}"  || exit 36 #key has prefix as part of it
+    echo "Deleted old backup: ${KEY} from S3: status: $?"
   done;
+
+  if [ "${DELETED}" = "YES" ]; then
+    echo "Deleted old backups" >&1
+    aws $S3_COMMAND || exit 37 #List files again
+  fi
 fi
 
 echo "SQL backup finished"
