@@ -14,7 +14,7 @@ docker run -d --rm --network ${TEST_NETWORK} --name ${POSTGRES_BACKUP_HOST} -p $
   ${POSTGRES_BACKUP_IMAGE}
 sleep 15
 
-REMOVED_BACKUPS_COUNT=$(docker logs ${POSTGRES_BACKUP_HOST} | grep "Deleting old backup" | wc -l)
+REMOVED_BACKUPS_COUNT=$(docker logs ${POSTGRES_BACKUP_HOST} 2>&1 | grep "Deleting old backup" | wc -l)
 docker logs ${POSTGRES_BACKUP_HOST}
 docker run -i --rm --network ${TEST_NETWORK} ${POSTGRES_CLIENT_IMAGE} \
    -vON_ERROR_STOP=ON postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE} <<-EOSQL

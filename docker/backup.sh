@@ -11,7 +11,7 @@ if \
   [ $(pgrep openssl | wc -l) -gt 0 ] || \
   [ $(pgrep gzip | wc -l) -gt 0 ]
 then
-  echo "Another backup is running"
+  echo "date":"$(date)", "message":"Another backup is running" | jq >&2
   exit 33
 fi
 
@@ -68,15 +68,15 @@ else
   older_than=$(date -d "${DELETE_OLDER_THAN}" +%Y-%m-%dT%H:%M:%S.%3NZ)
   echo "older_than: $older_than"
   QUERY="(Contents[?LastModified<='$older_than'].Key|[])"
-  S3_COMMAND="${AWS_ARGS} s3api list-objects --bucket ${S3_BUCKET} --prefix ${S3_PREFIX} --query ${QUERY}  --output=json"
+  S3_COMMAND="${AWS_ARGS} s3api list-objects --bucket ${S3_BUCKET} --prefix ${S3_PREFIX} --query ${QUERY} --output=json"
   # shellcheck disable=SC2086
   echo "aws ${S3_COMMAND}"
   RESULT=$(aws $S3_COMMAND)
   echo "RESULT: ${RESULT}"
-  echo ${RESULT} | jq -r '.[]?' | while read -r filename
+  echo ${RESULT} | jq -r '.[]?' | while read -r KEY
   do
     echo "Deleting old backup: ${filename} from S3"
-    aws ${AWS_ARGS} s3 rm "s3://${S3_BUCKET}/${S3_PREFIX}/${filename}"
+    aws ${AWS_ARGS} s3 rm "s3://${S3_BUCKET}/${KEY}" #key has prefix as part of it
   done;
 fi
 
