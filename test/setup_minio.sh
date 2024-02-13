@@ -13,7 +13,7 @@ while [ "$health_status" != "healthy" ]; do
 done
 echo "${S3_HOST}: $health_status"
 
-docker run --rm -it --network "${TEST_NETWORK}" --name "${AWS_CLI_HOST}" \
+docker run --rm -i --network "${TEST_NETWORK}" --name "${AWS_CLI_HOST}" \
   -e AWS_ACCESS_KEY_ID="${S3_ACCESS_KEY_ID}" \
   -e AWS_SECRET_ACCESS_KEY="${S3_SECRET_ACCESS_KEY}" \
   -e AWS_EC2_METADATA_DISABLED=true \
