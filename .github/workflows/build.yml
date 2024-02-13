@@ -87,7 +87,7 @@ jobs:
         run: ./test/tear_down.sh
 
   deploy:
-    if: ${{ !github.event.act && (needs.test.result == 'success' }}
+    if: ${{ !github.event.act && (needs.test.result == 'success') }}
     runs-on: ubuntu-latest
     needs:
       - test
