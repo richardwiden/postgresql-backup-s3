@@ -34,8 +34,9 @@ ENV POSTGRES_DATABASE=**None** \
     ENCRYPTION_PASSWORD=**None** \
     DELETE_OLDER_THAN=**None**  \
     RESTORE=**None** \
-    LOGDIR=/var/log/backup \
-    LOG=$LOGDIR/backup.log \
+    LOGDIR=/var/log/backup
+
+ENV LOG=${LOGDIR}/backup.log \
     ERR=${LOGDIR}/error.log
 
 

@@ -44,32 +44,17 @@ jobs:
       - name: PULL IMAGES
         run: ./test/pull_images.sh
 
-      - name: TEST_ERRORS - setup
-        run: ./test/setup.sh
-      - name: TEST_ERRORS - backup
-        run: ./test/test_backup.sh
-      - name: TEST_ERRORS - wrong_password_on_restore
-        run: ./test/test_error_from_aws.sh
-        env:
-          RESTORE: "latest"
-          S3_SECRET_ACCESS_KEY: "WRONG_KEY"
-      - name: TEST_ERRORS - multiple_backups
-        run: ./test/test_multiple_backups_aborting.sh
-      - name: TEST_ERRORS - teardown
-        run: ./test/tear_down.sh
-
       - name: BACKUP_SCHEDULE - setup
         run: ./test/setup.sh
-      - name: BACKUP_SCHEDULE - backup
+      - name: BACKUP_SCHEDULE - test_backup_schedule
         run: ./test/test_backup_schedule.sh
         env:
-          SCHEDULE: "@every 12s"
-          DELETE_OLDER_THAN: "5 seconds ago"
-      - name: BACKUP_SCHEDULE - restore
+          SCHEDULE: "@every 5s"
+          DELETE_OLDER_THAN: "9 seconds ago"
+      - name: BACKUP_SCHEDULE - test_restore
         run: ./test/test_restore.sh
         env:
           RESTORE: "latest"
-
       - name: BACKUP_SCHEDULE - teardown
         run: ./test/tear_down.sh
 
@@ -84,6 +69,22 @@ jobs:
       - name: BACKUP_RESTORE - teardown
         run: ./test/tear_down.sh
 
+      - name: TEST_LOGIN_ERROR - setup
+        run: ./test/setup.sh
+      - name: TEST_LOGIN_ERROR - wrong_password_on_restore
+        run: ./test/wrong_password_on_restore.sh
+        env:
+          RESTORE: "latest"
+          S3_SECRET_ACCESS_KEY: "WRONG_KEY"
+      - name: TEST_LOGIN_ERROR - teardown
+        run: ./test/tear_down.sh
+
+      - name: TEST_MULTIPLE_ERROR - setup
+        run: ./test/setup.sh
+      - name: TEST_MULTIPLE_ERROR - test_multiple_backups_aborting
+        run: ./test/test_multiple_backups_aborting.sh
+      - name: TEST_MULTIPLE_ERROR - teardown
+        run: ./test/tear_down.sh
 
   deploy:
     if: ${{ !github.event.act }}

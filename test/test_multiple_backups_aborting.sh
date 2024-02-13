@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-./test/setup_postgres.sh no_init
+#./test/setup_postgres.sh no_init
 
 EXPECTED_ERROR_CODE=33
 

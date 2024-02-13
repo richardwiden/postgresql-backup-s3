@@ -1,7 +1,26 @@
 #!/bin/bash
+set -euo pipefail
 
-set -e
-set -o pipefail
+function runCommand()
+{
+  local command=$1
+  eval "$command" 2>/tmp/error > /tmp/output
+  return $?
+}
+
+function createTempFile()
+{
+  local file=$1
+  if [ -f $file ];
+  then
+    rm ${file};
+  fi
+  touch ${file}
+  if [ ! -f ${file} ];
+  then
+    exit 1
+  fi
+}
 
 if [ "${S3_ACCESS_KEY_ID}" = "**None**" ]; then
   echo "You need to set the S3_ACCESS_KEY_ID environment variable."

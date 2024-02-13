@@ -8,27 +8,32 @@ echo "" > "${LOG}"
 echo "" > "${ERR}"
 
 if [ "${RESTORE}" != "**None**" ]; then
-  if [ $(bash restore.sh 2>>"${ERR}" 1>>"${LOG}") != 0 ];
+  bash restore.sh 2>>"${ERR}" 1>>"${LOG}"
+  ERROR=$?
+  if [ ${ERROR} != 0 ]
   then
-    echo "Error from restore.sh: $?"
-    exit $?
+    echo "Error from restore.sh: ${ERROR}"
+    exit ${ERROR}
   fi
   exit 0
 fi
 
 if [ "${SCHEDULE}" = "**None**" ]; then
-  if [ $(bash backup.sh 2>>"${ERR}" 1>>"${LOG}") != 0 ];
+  bash backup.sh 2>>"${ERR}" 1>>"${LOG}"
+  ERROR=$?
+  if [ ${ERROR} != 0 ]
   then
-    echo "Error from backup.sh during backup: $?"
-    exit $?
+    echo "Error from backup.sh during backup: ${ERROR}"
+    exit ${ERROR}
   fi
   exit 0
 fi
 
-
-if [ $(exec go-cron "$SCHEDULE" /bin/bash -c "./backup.sh 2>>${ERR} 1>>${LOG}") != 0 ];
+exec go-cron "$SCHEDULE" /bin/bash -c "./backup.sh 2>>${ERR} 1>>${LOG}"
+ERROR=$?
+if [ ${ERROR} != 0 ]
 then
-  echo "Error from backup.sh during scheduled backup: $?"
-  exit $?
+  echo "Error from go-cron: ${ERROR}"
+  exit ${ERROR}
 fi
 exit 0
