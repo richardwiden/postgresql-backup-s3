@@ -14,6 +14,11 @@ if [ "$1" != "no_init" ];
 then
   docker cp ./test/test_db_setup.sh ${POSTGRES_HOST}:/docker-entrypoint-initdb.d/test_db_setup.sh
 fi
+logs_output=""
+while [[ "$logs_output" != *"listening on IPv4 address"* ]]; do
+    logs_output=$(docker logs "${POSTGRES_HOST}" 2>&1 || true)
+    sleep 0.1s
+done 
 while [ "$health_status" != "healthy" ]; do
     health_status=$(docker inspect --format='{{.State.Health.Status}}' "${POSTGRES_HOST}")
     sleep 0.01s

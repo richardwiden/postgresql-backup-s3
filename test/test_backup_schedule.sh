@@ -43,4 +43,5 @@ fi
 echo "Cleanup so that restore makes sense"
 docker rm "${POSTGRES_BACKUP_HOST}"
 docker kill "${POSTGRES_HOST}"
+sleep 1
 docker volume rm "${POSTGRES_VOLUME}"

@@ -13,7 +13,11 @@ jobs:
       matrix:
         include:
           - FLAVOR: 12
+          - FLAVOR: 14
           - FLAVOR: 15
+          - FLAVOR: 16
+          - FLAVOR: 17
+          - FLAVOR: 18
     container:
       image: lucasalt/act_base:latest
     env:
@@ -100,6 +104,12 @@ jobs:
             suffix: "-14"
           - postgres_version: 15
             suffix: "-15"
+          - postgres_version: 16
+            suffix: "-16"
+          - postgres_version: 17
+            suffix: "-17"
+          - postgres_version: 18
+            suffix: "-18"
     steps:
       - uses: actions/checkout@v4
       - name: Release
